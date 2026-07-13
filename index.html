@@ -185,6 +185,106 @@
       </div>
     </div>
 
+    <!-- 📐 图表设计原则(本次迭代沉淀) -->
+    <div class="section">
+      <div class="section-title">📐 图表设计原则</div>
+      <div class="section-subtitle">基于 Edward Tufte 数据墨水比 · 本项目迭代沉淀的反模式与替代方案 · 4 大维度按数据特征选型</div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:20px;">
+
+        <!-- ❌ 反模式 -->
+        <div style="background:#FFF5F5;border-left:4px solid #E53935;border-radius:8px;padding:16px;">
+          <h3 style="margin:0 0 10px 0;color:#C62828;font-size:15px;">❌ 反模式(避坑)</h3>
+          <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.8;color:#5F5E5A;">
+            <li><b>饼图展示胜率</b>:胜率相近时扇形几乎等大,信息密度为零</li>
+            <li><b>3D 饼图</b>:透视变形让"前小后大"完全不可比</li>
+            <li><b>双 Y 轴</b>:读者无法判断哪个轴对应哪条线</li>
+            <li><b>环形图强调比例</b>:人眼对角度差异的辨识度天生比长度低 4 倍</li>
+          </ul>
+        </div>
+
+        <!-- ✅ 推荐选型 -->
+        <div style="background:#F5FFF5;border-left:4px solid #43A047;border-radius:8px;padding:16px;">
+          <h3 style="margin:0 0 10px 0;color:#2E7D32;font-size:15px;">✅ 推荐图表(按数据维度)</h3>
+          <table style="width:100%;font-size:11px;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#E8F5E9;color:#1B5E20;">
+                <th style="text-align:left;padding:6px 4px;">想表达什么</th>
+                <th style="text-align:left;padding:6px 4px;">推荐</th>
+                <th style="text-align:left;padding:6px 4px;">不推荐</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#FFFFFF;">
+                <td style="padding:5px 4px;">球队胜率对比</td>
+                <td style="padding:5px 4px;color:#2E7D32;font-weight:500;">水平柱状图</td>
+                <td style="padding:5px 4px;color:#999;">饼图</td>
+              </tr>
+              <tr style="background:#FAFAFA;">
+                <td style="padding:5px 4px;">剩余赛程难度</td>
+                <td style="padding:5px 4px;color:#2E7D32;font-weight:500;">对手强度热力图</td>
+                <td style="padding:5px 4px;color:#999;">饼图</td>
+              </tr>
+              <tr style="background:#FFFFFF;">
+                <td style="padding:5px 4px;">互斥概率/份额</td>
+                <td style="padding:5px 4px;color:#2E7D32;font-weight:500;">100% 堆叠柱</td>
+                <td style="padding:5px 4px;color:#999;">多个饼图</td>
+              </tr>
+              <tr style="background:#FAFAFA;">
+                <td style="padding:5px 4px;">胜率走势</td>
+                <td style="padding:5px 4px;color:#2E7D32;font-weight:500;">折线图 + 趋势带</td>
+                <td style="padding:5px 4px;color:#999;">柱状图</td>
+              </tr>
+              <tr style="background:#FFFFFF;">
+                <td style="padding:5px 4px;">晋级概率</td>
+                <td style="padding:5px 4px;color:#2E7D32;font-weight:500;">仪表盘</td>
+                <td style="padding:5px 4px;color:#999;">柱状图</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 🎯 6 项核心原则 -->
+        <div style="background:#FFF8E1;border-left:4px solid #FFA726;border-radius:8px;padding:16px;">
+          <h3 style="margin:0 0 10px 0;color:#E65100;font-size:15px;">🎯 6 项核心原则</h3>
+          <ol style="margin:0;padding-left:20px;font-size:12px;line-height:1.8;color:#5F5E5A;">
+            <li><b>数据墨水比最大化</b>:能省的线条/网格/边框一律省</li>
+            <li><b>色盲友好</b>:颜色 + 形状/文字双重编码</li>
+            <li><b>比例正确</b>:Y 轴从 0 开始(柱状图尤其)</li>
+            <li><b>排序有意义</b>:从大到小或按时间排,别乱序</li>
+            <li><b>直接标注</b>:数值标在元素旁,别让读者看刻度</li>
+            <li><b>示例数据水印</b>:演示图必须标"非真实数据"</li>
+          </ol>
+        </div>
+
+        <!-- 🔥 本项目落地 -->
+        <div style="background:#E3F2FD;border-left:4px solid #1976D2;border-radius:8px;padding:16px;">
+          <h3 style="margin:0 0 10px 0;color:#0D47A1;font-size:15px;">🔥 本项目落地</h3>
+          <p style="margin:0 0 10px 0;font-size:11px;color:#1565C0;">本项目已按上述原则迭代 v1.4.0+:</p>
+          <ul style="margin:0;padding-left:18px;font-size:11px;line-height:1.7;color:#5F5E5A;">
+            <li>🎯 新增 <b>晋级概率仪表盘</b>(C 方案)</li>
+            <li>🔥 新增 <b>剩余对手强度热力图</b>(B 方案,主推)</li>
+            <li>📉 新增 <b>胜率走势带</b>(A 方案)</li>
+            <li>📊 保留胜率图,语义修正为<b>"冠军概率"</b>(互斥事件饼图才合规)</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- 底部导航 + 警示 -->
+      <div style="margin-top:18px;padding:12px 16px;background:#FFF8E1;border:1px dashed #BA7517;border-radius:6px;font-size:11px;color:#633806;">
+        <b>⚠ 数据水印</b>:本次"反模式"对比图与"图表设计原则"中的数值均为<strong>说明性示例</strong>,非真实比赛数据。
+        真实部署需对接 <code>bracketmundial2026.com</code> 数据源(详见 <code>deploy/fetch.py</code>)。
+      </div>
+
+      <div style="margin-top:12px;text-align:center;font-size:11px;color:#888;">
+        详尽版本见
+        <a href="https://github.com/wuxixixi/ld-worldcup#-图表设计原则" target="_blank" rel="noopener noreferrer" style="color:#378ADD;text-decoration:none;">
+          GitHub README → 图表设计原则
+        </a>
+      </div>
+    </div>
+
     <!-- 模型说明 -->
     <div class="section">
       <div class="section-title">🧠 预测模型说明</div>
