@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: 🚀 部署
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       - name: ✅ 完成
         if: success()
