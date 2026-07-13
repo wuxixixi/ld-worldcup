@@ -155,6 +155,33 @@
           <div class="chart-title">📅 每日比赛数量趋势</div>
           <div id="chart-daily" class="chart-canvas"></div>
         </div>
+
+        <!-- 图 7:晋级概率仪表盘(C 方案 - 摘要级) -->
+        <div class="chart-container chart-container-wide">
+          <div class="chart-title">🎯 半决赛晋级概率仪表盘</div>
+          <div style="font-size:10px;color:#888;margin:-10px 0 10px 0;">
+            综合考虑:当前胜率 × 剩余对手强度 × 主客场分布 · 数值越高越被看好晋级决赛
+          </div>
+          <div id="chart-qualify-gauge" class="chart-canvas" style="height:280px;"></div>
+        </div>
+
+        <!-- 图 8:剩余对手强度热力图(B 方案 - 推荐主图) -->
+        <div class="chart-container chart-container-wide">
+          <div class="chart-title">🔥 剩余对手强度热力图</div>
+          <div style="font-size:10px;color:#888;margin:-10px 0 10px 0;">
+            行=球队 / 列=剩余场次(下一场 → 末场) / 颜色深浅=对手胜率(深红=地狱级对手) / 🏠 = 主场 / ✈️ = 客场
+          </div>
+          <div id="chart-schedule-heatmap" class="chart-canvas" style="height:340px;"></div>
+        </div>
+
+        <!-- 图 9:胜率走势带(A 方案) -->
+        <div class="chart-container chart-container-wide">
+          <div class="chart-title">📉 胜率走势带(剩余场次对手强度)</div>
+          <div style="font-size:10px;color:#888;margin:-10px 0 10px 0;">
+            实线=已赛 · 虚线=预测走势 · 圆点深浅=剩余对手强度 · 数字=预测胜率%
+          </div>
+          <div id="chart-trend-band" class="chart-canvas" style="height:340px;"></div>
+        </div>
       </div>
     </div>
 

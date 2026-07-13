@@ -242,6 +242,9 @@
     renderGoalsChart();
     renderWinRateChart();
     renderDailyMatchesChart();
+    renderQualifyGaugeChart();
+    renderScheduleHeatmapChart();
+    renderTrendBandChart();
   }
 
   // ---------- 图 1:准确率趋势(跨阶段累计) ----------
@@ -667,6 +670,417 @@
           }
         }
       }]
+    });
+  }
+
+  // ============================================================
+  //   图 7:晋级概率仪表盘(C 方案)
+  //   综合当前胜率 + 剩余对手强度 + 主客场 → 推算晋级决赛概率
+  // ============================================================
+  function computeQualifyProbability(team, remainingSchedule) {
+    if (!remainingSchedule || remainingSchedule.length === 0) {
+      // 没有剩余比赛 → 当前胜率即为"安全晋级"分
+      return Math.min(100, team.winRate);
+    }
+    // 简单模型: 当前胜率 × (1 - 平均对手胜率/200) × (主场加成 1.05 / 客场 0.95)
+    const avgOppStrength = remainingSchedule.reduce((s, g) => s + g.oppWinRate, 0) / remainingSchedule.length;
+    const homeAwayFactor = remainingSchedule.reduce((s, g) => s * (g.isHome ? 1.05 : 0.95), 1);
+    const raw = team.winRate * (1 - avgOppStrength / 200) * homeAwayFactor;
+    return Math.max(5, Math.min(98, Math.round(raw)));
+  }
+
+  function buildRemainingSchedule() {
+    // 从 data.matches.json 提取半决赛 & 决赛的球队对阵,作为剩余赛程
+    const sf = appData.semiFinals || [];
+    const fn = appData.finals || [];
+    const teamLookup = {};
+    (appData.teamStats || []).forEach(t => { teamLookup[t.team] = t; });
+
+    const scheduleByTeam = {};
+    [...sf, ...fn].forEach(m => {
+      const home = teamLookup[m.home];
+      const away = teamLookup[m.away];
+      if (!home || !away) return;
+      const round = m.stage || '';
+      if (!scheduleByTeam[m.home]) scheduleByTeam[m.home] = [];
+      if (!scheduleByTeam[m.away]) scheduleByTeam[m.away] = [];
+      scheduleByTeam[m.home].push({
+        stage: round,
+        opponent: m.away,
+        oppWinRate: away.winRate,
+        isHome: true,
+        date: m.date
+      });
+      scheduleByTeam[m.away].push({
+        stage: round,
+        opponent: m.home,
+        oppWinRate: home.winRate,
+        isHome: false,
+        date: m.date
+      });
+    });
+    return scheduleByTeam;
+  }
+
+  function renderQualifyGaugeChart() {
+    const el = document.getElementById('chart-qualify-gauge');
+    if (!el || typeof echarts === 'undefined') return;
+
+    const remainingTeams = (appData.teamStats || []).filter(t => t.stage !== '淘汰');
+    if (remainingTeams.length === 0) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">暂无半决赛球队数据</div>';
+      return;
+    }
+
+    const schedule = buildRemainingSchedule();
+    const gaugeData = remainingTeams.map(t => {
+      const sched = schedule[t.team] || [];
+      const prob = computeQualifyProbability(t, sched);
+      return {
+        name: (t.flag || '') + ' ' + t.team,
+        value: prob,
+        team: t,
+        sched: sched
+      };
+    }).sort((a, b) => b.value - a.value);
+
+    const chart = chartInstances['qualify-gauge'] || echarts.init(el);
+    chartInstances['qualify-gauge'] = chart;
+
+    const palette = ['#1B5E20', '#2E7D32', '#388E3C', '#43A047', '#4CAF50', '#66BB6A'];
+    gaugeData.forEach((d, i) => {
+      d.color = palette[Math.min(i, palette.length - 1)];
+    });
+
+    chart.setOption({
+      tooltip: {
+        formatter: function(p) {
+          const d = p.data;
+          const sched = d.sched.length > 0
+            ? d.sched.map(s => `<br/>&nbsp;&nbsp;${s.isHome ? '🏠' : '✈️'} ${s.stage} vs ${s.opponent} (对手胜率 ${s.oppWinRate}%)`).join('')
+            : '<br/>&nbsp;&nbsp;已无剩余比赛';
+          return `<b>${d.name}</b><br/>` +
+            `晋级概率: <b style="color:${d.color};font-size:16px;">${d.value}%</b>` +
+            `<br/>当前胜率: ${d.team.winRate}% (${d.team.matches}战)` +
+            sched;
+        }
+      },
+      series: gaugeData.map((d, idx) => ({
+        type: 'gauge',
+        center: getGaugeCenter(idx, gaugeData.length),
+        radius: getGaugeRadius(gaugeData.length),
+        startAngle: 200,
+        endAngle: -20,
+        min: 0,
+        max: 100,
+        splitNumber: 4,
+        progress: { show: true, width: 12, itemStyle: { color: d.color } },
+        axisLine: { lineStyle: { width: 12, color: [[1, '#ECEFF1']] } },
+        pointer: { show: false },
+        axisTick: { show: false },
+        splitLine: { show: false },
+        axisLabel: { color: '#999', fontSize: 10, distance: -25 },
+        anchor: { show: false },
+        title: { show: true, offsetCenter: [0, '70%'], color: '#333', fontSize: 12, fontWeight: 500 },
+        detail: {
+          valueAnimation: true,
+          offsetCenter: [0, '0%'],
+          formatter: '{value}%',
+          color: d.color,
+          fontSize: 18,
+          fontWeight: 500
+        },
+        data: [{ value: d.value, name: d.name }]
+      }))
+    });
+  }
+
+  function getGaugeCenter(idx, total) {
+    if (total === 1) return ['50%', '55%'];
+    if (total === 2) return [idx === 0 ? '25%' : '75%', '55%'];
+    if (total === 3) return [idx === 0 ? '50%' : (idx === 1 ? '25%' : '75%'), idx === 0 ? '35%' : '75%'];
+    if (total === 4) return [['25%', '35%'], ['75%', '35%'], ['25%', '78%'], ['75%', '78%']][idx];
+    return [(15 + idx * (70 / (total - 1))) + '%', '55%'];
+  }
+  function getGaugeRadius(total) {
+    if (total <= 2) return '42%';
+    if (total <= 4) return '32%';
+    return '25%';
+  }
+
+  // ============================================================
+  //   图 8:剩余对手强度热力图(B 方案 - 推荐主图)
+  //   Y 轴:球队 / X 轴:第 N 场 / 颜色:对手胜率(深红=难)
+  //   单元格内:🏠主场 / ✈️客场 + 对手名缩写
+  // ============================================================
+  function renderScheduleHeatmapChart() {
+    const el = document.getElementById('chart-schedule-heatmap');
+    if (!el || typeof echarts === 'undefined') return;
+
+    const remainingTeams = (appData.teamStats || []).filter(t => t.stage !== '淘汰');
+    if (remainingTeams.length === 0) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">暂无剩余球队</div>';
+      return;
+    }
+
+    const schedule = buildRemainingSchedule();
+    const maxGames = Math.max(1, ...remainingTeams.map(t => (schedule[t.team] || []).length));
+    const xLabels = Array.from({ length: maxGames }, (_, i) => `第 ${i + 1} 场`);
+
+    // 单元格数据: [xIndex, yIndex, value, meta]
+    const cells = [];
+    const teamNames = remainingTeams.map(t => (t.flag || '') + ' ' + t.team);
+    const teamAvg = [];
+
+    remainingTeams.forEach((t, yi) => {
+      const sched = schedule[t.team] || [];
+      let sum = 0;
+      sched.forEach((g, xi) => {
+        cells.push({
+          value: [xi, yi, g.oppWinRate],
+          meta: { isHome: g.isHome, opponent: g.opponent, stage: g.stage }
+        });
+        sum += g.oppWinRate;
+      });
+      teamAvg.push(sched.length > 0 ? Math.round(sum / sched.length) : 0);
+    });
+
+    const chart = chartInstances['schedule-heatmap'] || echarts.init(el);
+    chartInstances['schedule-heatmap'] = chart;
+
+    chart.setOption({
+      tooltip: {
+        formatter: function(p) {
+          const d = p.data;
+          if (!d || !d.value) return '';
+          const [xi, yi, v] = d.value;
+          const team = remainingTeams[yi];
+          const m = d.meta || {};
+          const label = v >= 70 ? '🔥 地狱级' : v >= 50 ? '⚠️ 中等' : '✅ 轻松';
+          const side = m.isHome ? '🏠 主场' : '✈️ 客场';
+          return `<b>${teamNames[yi]}</b><br/>` +
+            `${xLabels[xi]}: ${side} vs ${m.opponent || '-'}<br/>` +
+            `对手胜率: <b>${v}%</b> · ${label}<br/>` +
+            `阶段: ${m.stage || '-'}`;
+        }
+      },
+      grid: { left: 110, right: 80, top: 30, bottom: 30 },
+      xAxis: {
+        type: 'category',
+        data: xLabels,
+        splitArea: { show: true, areaStyle: { color: ['transparent'] } },
+        axisLabel: { color: '#555', fontSize: 11 }
+      },
+      yAxis: {
+        type: 'category',
+        data: teamNames,
+        splitArea: { show: true, areaStyle: { color: ['transparent'] } },
+        axisLabel: { color: '#333', fontSize: 11, fontWeight: 500 }
+      },
+      visualMap: {
+        min: 0, max: 100,
+        calculable: true,
+        orient: 'vertical',
+        right: 0,
+        top: 'center',
+        text: ['难', '易'],
+        textStyle: { color: '#555', fontSize: 10 },
+        inRange: {
+          color: ['#C8E6C9', '#FFF9C4', '#FFE0B2', '#FFCCBC', '#EF9A9A', '#E57373', '#C62828']
+        }
+      },
+      series: [{
+        name: '对手强度',
+        type: 'heatmap',
+        data: cells,
+        label: {
+          show: true,
+          formatter: function(p) {
+            const d = p.data;
+            if (!d || !d.value) return '';
+            const m = d.meta || {};
+            const [xi, yi, v] = d.value;
+            const side = m.isHome ? '🏠' : '✈️';
+            const opp = m.opponent || '?';
+            return `${side}\n${v}%\n${opp}`;
+          },
+          fontSize: 10,
+          color: '#fff',
+          fontWeight: 500
+        },
+        itemStyle: { borderColor: '#fff', borderWidth: 1 }
+      }, {
+        name: '平均强度',
+        type: 'bar',
+        xAxisIndex: 0,
+        yAxisIndex: 0,
+        data: teamAvg,
+        showInLegend: false,
+        barWidth: 4,
+        itemStyle: { color: '#455A64' },
+        label: {
+          show: true,
+          position: 'right',
+          formatter: '{c}%',
+          fontSize: 10,
+          color: '#333'
+        }
+      }]
+    });
+  }
+
+  // ============================================================
+  //   图 9:胜率走势带(A 方案)
+  //   X 轴:比赛场次(已赛 + 剩余) / Y 轴:胜率
+  //   实线=已赛 · 虚线=预测走势 · 圆点颜色=对手强度
+  // ============================================================
+  function renderTrendBandChart() {
+    const el = document.getElementById('chart-trend-band');
+    if (!el || typeof echarts === 'undefined') return;
+
+    const remainingTeams = (appData.teamStats || []).filter(t => t.stage !== '淘汰');
+    if (remainingTeams.length === 0) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">暂无剩余球队</div>';
+      return;
+    }
+
+    const schedule = buildRemainingSchedule();
+
+    // 构建"累计胜率"轨迹: 假设每场比赛以胜率 ≈ (当前胜率 + 100 - 对手胜率) / 2 计算
+    const teamSeries = remainingTeams.map((t, idx) => {
+      const wins = Math.round(t.winRate / 100 * t.matches);
+      const losses = t.matches - wins;
+      const playedWR = t.winRate;
+      const playedLine = [playedWR];
+      const sched = schedule[t.team] || [];
+      const projectedLine = [playedWR];
+      const opponentDots = [];
+
+      sched.forEach((g, i) => {
+        const expWR = Math.round((playedWR + (100 - g.oppWinRate)) / 2);
+        const nextWR = i === 0
+          ? Math.round((playedWR * t.matches + expWR) / (t.matches + 1))
+          : Math.round((projectedLine[projectedLine.length - 1] * (t.matches + i) + expWR) / (t.matches + i + 1));
+        projectedLine.push(nextWR);
+        opponentDots.push({
+          value: [t.matches + i + 1, nextWR],
+          opponent: g.opponent,
+          isHome: g.isHome,
+          oppWR: g.oppWinRate
+        });
+      });
+
+      const color = ['#1B5E20', '#378ADD', '#BA7517', '#993556', '#0F6E56', '#993C1D'][idx % 6];
+
+      return {
+        name: (t.flag || '') + ' ' + t.team,
+        type: 'line',
+        smooth: true,
+        symbolSize: 10,
+        lineStyle: { color, width: 2.5, type: 'solid' },
+        itemStyle: { color },
+        data: playedLine.concat(projectedLine.slice(1).map((v, i) => ({
+          value: [t.matches + i + 1, v],
+          symbol: opponentDots[i] ? (opponentDots[i].isHome ? 'circle' : 'diamond') : 'circle',
+          symbolSize: opponentDots[i] ? 14 : 8,
+          itemStyle: {
+            color: opponentDots[i] && opponentDots[i].oppWR >= 70 ? '#C62828'
+                 : opponentDots[i] && opponentDots[i].oppWR >= 50 ? '#EF9A27'
+                 : '#43A047'
+          }
+        }))),
+        // 实线段(已赛)用实线,虚线段(预测)叠加另一条 series 更清晰
+        emphasis: { focus: 'series' },
+        _sched: sched,
+        _matches: t.matches
+      };
+    });
+
+    // 分割线: 已赛 vs 预测(在第 matches 场次画竖虚线)
+    const maxMatches = Math.max(...remainingTeams.map(t => {
+      const s = schedule[t.team] || [];
+      return t.matches + s.length;
+    }));
+
+    const markLines = [];
+    remainingTeams.forEach((t, i) => {
+      const color = ['#1B5E20', '#378ADD', '#BA7517', '#993556', '#0F6E56', '#993C1D'][i % 6];
+      markLines.push({
+        xAxis: t.matches,
+        lineStyle: { color, type: 'dashed', width: 1, opacity: 0.3 }
+      });
+    });
+
+    const chart = chartInstances['trend-band'] || echarts.init(el);
+    chartInstances['trend-band'] = chart;
+
+    chart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross' },
+        formatter: function(params) {
+          if (!params || params.length === 0) return '';
+          const x = params[0].axisValue;
+          const lines = [`<b>第 ${x} 场</b>`];
+          params.forEach(p => {
+            const val = Array.isArray(p.value) ? p.value[1] : p.value;
+            const symbol = p.symbol === 'diamond' ? '✈️ 客场' : p.symbol === 'circle' ? (val !== p.seriesData?.[0]?.value?.[1] ? '⚽ 比赛' : '🏁 起点') : '';
+            lines.push(`${p.marker} ${p.seriesName}: <b>${val}%</b> ${symbol}`);
+          });
+          return lines.join('<br/>');
+        }
+      },
+      legend: {
+        type: 'scroll',
+        top: 0,
+        textStyle: { fontSize: 11, color: '#333' }
+      },
+      grid: { left: 60, right: 30, top: 40, bottom: 50 },
+      xAxis: {
+        type: 'value',
+        name: '比赛场次',
+        min: 1,
+        max: maxMatches,
+        splitLine: { lineStyle: { color: '#eee' } },
+        axisLabel: { color: '#666' },
+        nameTextStyle: { color: '#888' }
+      },
+      yAxis: {
+        type: 'value',
+        name: '胜率 %',
+        min: 0,
+        max: 100,
+        splitLine: { lineStyle: { color: '#eee' } },
+        axisLabel: { color: '#666', formatter: '{value}%' },
+        nameTextStyle: { color: '#888' }
+      },
+      series: teamSeries,
+      graphic: markLines.map((m, i) => ({
+        type: 'group',
+        children: [{
+          type: 'line',
+          shape: { x1: 0, y1: 0, x2: 0, y2: 240 },
+          style: { stroke: m.lineStyle.color, lineWidth: 1, lineDash: [4, 4], opacity: 0.3 }
+        }],
+        // 简化:用 markLine 实现更可靠,故 graphic 不再单独使用
+      }))
+    });
+
+    // 用 markLine 重画分割线(更稳定)
+    chart.setOption({
+      series: teamSeries.map((s, i) => {
+        const color = ['#1B5E20', '#378ADD', '#BA7517', '#993556', '#0F6E56', '#993C1D'][i % 6];
+        return {
+          ...s,
+          markLine: {
+            silent: true,
+            symbol: 'none',
+            label: { show: false },
+            lineStyle: { color, type: 'dashed', width: 1, opacity: 0.3 },
+            data: [{ xAxis: remainingTeams[i].matches, name: '已赛/预测分界' }]
+          }
+        };
+      })
     });
   }
 
