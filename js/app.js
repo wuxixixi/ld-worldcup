@@ -696,7 +696,7 @@
       '数据更新于 ' + appData.meta.lastUpdate;
   }
 
-  // ========== 关键比赛预测(球迷真正关心的) ==========
+  // ========== 关键比赛预测(球迷真正关心的,从 matches.json 直接读取 fetch.py 写入的预测数据) ==========
   function renderKeyPredictions() {
     const el = document.getElementById('key-predictions-list');
     const timeEl = document.getElementById('pred-update-time');
@@ -714,31 +714,81 @@
       return;
     }
 
+    // 置信度标签配色
+    const confStyle = (c) => {
+      if (c === 'high') return { bg: '#E8F5E9', fg: '#1B5E20', label: '高置信' };
+      if (c === 'medium') return { bg: '#FFF8E1', fg: '#E65100', label: '中等置信' };
+      if (c === 'low') return { bg: '#FFEBEE', fg: '#C62828', label: '低置信' };
+      return { bg: '#ECEFF1', fg: '#455A64', label: '待评估' };
+    };
+
     el.innerHTML = upcoming.map(m => {
-      const dateLabel = m.date ? `${m.date} · ${m.venue || ''}` : '';
-      const predicted = m.predictedWinner || (m.predCorrect !== undefined ? (m.homeWinRate >= (m.awayWinRate || 50) ? m.home : m.away) : '待预测');
-      const homeFlag = m.homeFlag || '';
-      const awayFlag = m.awayFlag || '';
+      const dateLabel = m.date ? `${m.date}${m.time ? ' ' + m.time : ''}` : '';
+      const cs = confStyle(m.predConfidence);
+
+      // 真实字段 — 直接读 matches.json 里的预测
+      const predWinner = m.predWinner || null;
+      const predScore = m.prediction || null;
+      const predRate = m.predRate || null;
+      const note = m.note || '';
+
+      // 渲染胜率条
+      let rateBarHtml = '';
+      if (predRate && typeof predRate.home === 'number' && typeof predRate.away === 'number') {
+        const homePct = predRate.home;
+        const awayPct = predRate.away;
+        rateBarHtml = `
+          <div style="margin-top:10px;">
+            <div style="display:flex;height:22px;border-radius:4px;overflow:hidden;font-size:11px;font-weight:500;">
+              <div style="width:${homePct}%;background:#1B5E20;color:#fff;display:flex;align-items:center;justify-content:center;">${m.home} ${homePct}%</div>
+              <div style="width:${awayPct}%;background:#5F5E5A;color:#fff;display:flex;align-items:center;justify-content:center;">${awayPct}% ${m.away}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 预测胜方显示(若无预测,显示"待评估")
+      let predBoxHtml;
+      if (predWinner) {
+        predBoxHtml = `
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;background:#FFF8E1;border-left:3px solid #FFA726;border-radius:4px;">
+            <div style="flex:1;">
+              <div style="font-size:11px;color:#888;margin-bottom:2px;">🎯 预测胜方 <span style="display:inline-block;background:${cs.bg};color:${cs.fg};padding:1px 6px;border-radius:3px;font-size:10px;margin-left:4px;">${cs.label}</span></div>
+              <div style="font-size:16px;font-weight:500;color:#E65100;">${predWinner}${predScore ? ` <span style="font-size:13px;color:#888;font-weight:400;">(预测 ${predScore})</span>` : ''}</div>
+            </div>
+          </div>
+          ${rateBarHtml}
+          ${note ? `<div style="margin-top:8px;font-size:11px;color:#888;font-style:italic;">${note}</div>` : ''}
+        `;
+      } else {
+        predBoxHtml = `
+          <div style="margin-top:10px;padding:10px 12px;background:#ECEFF1;border-left:3px solid #90A4AE;border-radius:4px;font-size:12px;color:#546E7A;">
+            ⏳ 预测待评估 — fetch.py 下次拉取时填充
+          </div>
+        `;
+      }
+
       return `
         <div style="background:linear-gradient(135deg,#F8F9FA 0%,#FFFFFF 100%);border:1px solid #E0E0E0;border-radius:10px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <span style="font-size:11px;color:#888;font-weight:500;background:#F1F4F8;padding:3px 8px;border-radius:4px;">${m.stage || ''} · ${dateLabel}</span>
+            <span style="font-size:11px;color:#888;font-weight:500;background:#F1F4F8;padding:3px 8px;border-radius:4px;">${m.stage || '赛事'} · ${dateLabel}</span>
             <span style="font-size:11px;color:#5F5E5A;">📺 ${m.venue || '待定'}</span>
           </div>
           <div style="display:flex;justify-content:space-around;align-items:center;margin:14px 0;">
             <div style="text-align:center;flex:1;">
-              <div style="font-size:32px;line-height:1;">${homeFlag}</div>
-              <div style="font-size:14px;font-weight:500;color:#1B5E20;margin-top:4px;">${m.home}</div>
+              <div style="font-size:32px;line-height:1;">${m.homeFlag || '🏳️'}</div>
+              <div style="font-size:14px;font-weight:500;color:${predWinner === m.home ? '#1B5E20' : '#5F5E5A'};margin-top:4px;">${m.home}</div>
             </div>
-            <div style="font-size:24px;color:#999;font-weight:300;padding:0 12px;">VS</div>
+            <div style="text-align:center;padding:0 12px;">
+              <div style="font-size:18px;color:#999;font-weight:300;">VS</div>
+              ${predScore ? `<div style="font-size:13px;color:#888;margin-top:4px;">预测 ${predScore}</div>` : ''}
+            </div>
             <div style="text-align:center;flex:1;">
-              <div style="font-size:32px;line-height:1;">${awayFlag}</div>
-              <div style="font-size:14px;font-weight:500;color:#5F5E5A;margin-top:4px;">${m.away}</div>
+              <div style="font-size:32px;line-height:1;">${m.awayFlag || '🏳️'}</div>
+              <div style="font-size:14px;font-weight:500;color:${predWinner === m.away ? '#1B5E20' : '#5F5E5A'};margin-top:4px;">${m.away}</div>
             </div>
           </div>
-          <div style="background:#FFF8E1;border-left:3px solid #FFA726;padding:8px 12px;border-radius:4px;font-size:12px;color:#5F5E5A;">
-            <b style="color:#E65100;">🎯 预测胜方:</b> ${predicted}
-          </div>
+          ${predBoxHtml}
         </div>
       `;
     }).join('');
