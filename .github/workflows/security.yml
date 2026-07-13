@@ -18,7 +18,7 @@ jobs:
     name: 🐍 Python Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: 🐍 Setup Python
         uses: actions/setup-python@v5
@@ -42,7 +42,7 @@ jobs:
       matrix:
         language: ['python', 'javascript']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: 🔧 初始化 CodeQL
         uses: github/codeql-action/init@v3
@@ -60,7 +60,7 @@ jobs:
     name: 🔑 Secret 扫描
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -86,7 +86,7 @@ jobs:
     name: 🌐 前端安全检查
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: 🔍 检查内联脚本
         run: |
