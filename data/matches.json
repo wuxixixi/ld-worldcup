@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "title": "LD看世界杯",
+    "subtitle": "AI 数据驱动的世界杯预测平台",
+    "version": "1.4.0",
+    "lastUpdate": "2026-07-13 14:08 GMT+8",
+    "worldcup": "2026 美加墨世界杯",
+    "stage": "1/4 决赛全部结束,半决赛 7/15-7/16 开打(法国 vs 西班牙 / 阿根廷 vs 英格兰)",
+    "modelAccuracy": {
+      "roundOf32": {"correct": 15, "total": 16, "rate": "93.75%", "avgConfidence": "82%"},
+      "roundOf16": {"correct": 7, "total": 8, "rate": "87.5%", "avgConfidence": "78%"},
+      "quarterFinals_played": {"correct": 4, "total": 4, "rate": "100%", "avgConfidence": "78%"},
+      "overall": {"correct": 26, "total": 28, "rate": "92.86%", "avgConfidence": "79%"}
+    },
+    "accuracyTrend": [
+      {"stage": "1/16 决赛", "rate": 93.75, "matches": 16, "cumulativeCorrect": 15, "cumulativeTotal": 16},
+      {"stage": "1/8 决赛", "rate": 87.5, "matches": 8, "cumulativeCorrect": 7, "cumulativeTotal": 8},
+      {"stage": "1/4 决赛", "rate": 100, "matches": 4, "cumulativeCorrect": 4, "cumulativeTotal": 4},
+      {"stage": "半决赛", "rate": 0, "matches": 0, "cumulativeCorrect": 0, "cumulativeTotal": 0, "isPending": true},
+      {"stage": "决赛", "rate": 0, "matches": 0, "cumulativeCorrect": 0, "cumulativeTotal": 0, "isPending": true}
+    ],
+    "confidenceDistribution": {
+      "high_80_100": {"matches": 16, "correct": 14, "rate": "87.5%", "color": "#1B5E20"},
+      "medium_60_80": {"matches": 10, "correct": 10, "rate": "100%", "color": "#4CAF50"},
+      "low_below_60": {"matches": 2, "correct": 2, "rate": "100%", "color": "#FFA726"}
+    },
+    "modelNotes": "高置信度(80%+)预测准确率 87.5%,中低置信度准确率 100% — 模型在模糊对决中更保守反而更准。1/4 决赛 4 场全部预测正确(100%)。"
+  },
+  "teamStats": [
+    {"team": "阿根廷", "flag": "🇦🇷", "matches": 5, "wins": 5, "draws": 0, "losses": 0, "goalsFor": 9, "goalsAgainst": 4, "winRate": 100, "stage": "SF"},
+    {"team": "法国", "flag": "🇫🇷", "matches": 5, "wins": 5, "draws": 0, "losses": 0, "goalsFor": 8, "goalsAgainst": 1, "winRate": 100, "stage": "SF"},
+    {"team": "英格兰", "flag": "🏴󠁢󠁥󠁮󠁧󠁿", "matches": 4, "wins": 4, "draws": 0, "losses": 0, "goalsFor": 6, "goalsAgainst": 5, "winRate": 100, "stage": "SF"},
+    {"team": "西班牙", "flag": "🇪🇸", "matches": 4, "wins": 4, "draws": 0, "losses": 0, "goalsFor": 5, "goalsAgainst": 1, "winRate": 100, "stage": "SF"},
+    {"team": "瑞士", "flag": "🇨🇭", "matches": 4, "wins": 1, "draws": 2, "losses": 1, "goalsFor": 3, "goalsAgainst": 5, "winRate": 25, "stage": "淘汰"},
+    {"team": "比利时", "flag": "🇧🇪", "matches": 4, "wins": 3, "draws": 0, "losses": 1, "goalsFor": 8, "goalsAgainst": 4, "winRate": 75, "stage": "淘汰"},
+    {"team": "挪威", "flag": "🇳🇴", "matches": 4, "wins": 3, "draws": 0, "losses": 1, "goalsFor": 5, "goalsAgainst": 5, "winRate": 75, "stage": "淘汰"},
+    {"team": "摩洛哥", "flag": "🇲🇦", "matches": 4, "wins": 2, "draws": 1, "losses": 1, "goalsFor": 3, "goalsAgainst": 2, "winRate": 50, "stage": "淘汰"},
+    {"team": "葡萄牙", "flag": "🇵🇹", "matches": 3, "wins": 2, "draws": 0, "losses": 1, "goalsFor": 2, "goalsAgainst": 1, "winRate": 67, "stage": "淘汰"},
+    {"team": "巴西", "flag": "🇧🇷", "matches": 3, "wins": 2, "draws": 0, "losses": 1, "goalsFor": 5, "goalsAgainst": 4, "winRate": 67, "stage": "淘汰"},
+    {"team": "巴拉圭", "flag": "🇵🇾", "matches": 3, "wins": 2, "draws": 0, "losses": 1, "goalsFor": 3, "goalsAgainst": 3, "winRate": 67, "stage": "淘汰"},
+    {"team": "墨西哥", "flag": "🇲🇽", "matches": 3, "wins": 2, "draws": 0, "losses": 1, "goalsFor": 4, "goalsAgainst": 3, "winRate": 67, "stage": "淘汰"},
+    {"team": "加拿大", "flag": "🇨🇦", "matches": 3, "wins": 1, "draws": 0, "losses": 2, "goalsFor": 1, "goalsAgainst": 4, "winRate": 33, "stage": "淘汰"},
+    {"team": "美国", "flag": "🇺🇸", "matches": 3, "wins": 2, "draws": 0, "losses": 1, "goalsFor": 3, "goalsAgainst": 4, "winRate": 67, "stage": "淘汰"},
+    {"team": "哥伦比亚", "flag": "🇨🇴", "matches": 3, "wins": 2, "draws": 1, "losses": 0, "goalsFor": 1, "goalsAgainst": 0, "winRate": 67, "stage": "淘汰"},
+    {"team": "埃及", "flag": "🇪🇬", "matches": 3, "wins": 2, "draws": 1, "losses": 0, "goalsFor": 3, "goalsAgainst": 3, "winRate": 67, "stage": "淘汰"}
+  ],
+  "roundOf32": [
+    {"date": "06-28", "home": "南非", "away": "加拿大", "homeFlag": "🇿🇦", "awayFlag": "🇨🇦", "score": "0-1", "winner": "加拿大", "stage": "1/16", "venue": "洛杉矶", "predCorrect": true, "predConfidence": "high"},
+    {"date": "06-29", "home": "巴西", "away": "日本", "homeFlag": "🇧🇷", "awayFlag": "🇯🇵", "score": "2-1", "winner": "巴西", "stage": "1/16", "venue": "休斯顿", "predCorrect": true, "predConfidence": "high"},
+    {"date": "06-29", "home": "德国", "away": "巴拉圭", "homeFlag": "🇩🇪", "awayFlag": "🇵🇾", "score": "1-1", "winner": "巴拉圭", "winnerNote": "点球 3-4", "stage": "1/16", "venue": "波士顿", "predCorrect": true, "predConfidence": "medium"},
+    {"date": "06-30", "home": "荷兰", "away": "摩洛哥", "homeFlag": "🇳🇱", "awayFlag": "🇲🇦", "score": "1-1", "winner": "摩洛哥", "winnerNote": "点球 2-3", "stage": "1/16", "venue": "蒙特雷", "predCorrect": true, "predConfidence": "medium"},
+    {"date": "06-30", "home": "科特迪瓦", "away": "挪威", "homeFlag": "🇨🇮", "awayFlag": "🇳🇴", "score": "1-2", "winner": "挪威", "stage": "1/16", "venue": "达拉斯", "predCorrect": true, "predConfidence": "low"},
+    {"date": "06-30", "home": "墨西哥", "away": "厄瓜多尔", "homeFlag": "🇲🇽", "awayFlag": "🇪🇨", "score": "2-0", "winner": "墨西哥", "stage": "1/16", "venue": "瓜达拉哈拉", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-01", "home": "法国", "away": "瑞典", "homeFlag": "🇫🇷", "awayFlag": "🇸🇪", "score": "3-0", "winner": "法国", "stage": "1/16", "venue": "波士顿", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-01", "home": "英格兰", "away": "刚果(金)", "homeFlag": "🏴󠁢󠁥󠁮󠁧󠁿", "awayFlag": "🇨🇩", "score": "2-1", "winner": "英格兰", "stage": "1/16", "venue": "迈阿密", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-02", "home": "美国", "away": "波黑", "homeFlag": "🇺🇸", "awayFlag": "🇧🇦", "score": "2-0", "winner": "美国", "stage": "1/16", "venue": "旧金山湾区", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-02", "home": "比利时", "away": "塞内加尔", "homeFlag": "🇧🇪", "awayFlag": "🇸🇳", "score": "3-2", "winner": "比利时", "winnerNote": "加时 1-0", "stage": "1/16", "venue": "多伦多", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-02", "home": "葡萄牙", "away": "克罗地亚", "homeFlag": "🇵🇹", "awayFlag": "🇭🇷", "score": "2-1", "winner": "葡萄牙", "stage": "1/16", "venue": "费城", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-03", "home": "西班牙", "away": "奥地利", "homeFlag": "🇪🇸", "awayFlag": "🇦🇹", "score": "3-0", "winner": "西班牙", "stage": "1/16", "venue": "迈阿密", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-03", "home": "瑞士", "away": "阿尔及利亚", "homeFlag": "🇨🇭", "awayFlag": "🇩🇿", "score": "2-0", "winner": "瑞士", "stage": "1/16", "venue": "夏洛特", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-04", "home": "阿根廷", "away": "佛得角", "homeFlag": "🇦🇷", "awayFlag": "🇨🇻", "score": "3-2", "winner": "阿根廷", "winnerNote": "加时 2-1", "stage": "1/16", "venue": "纽约大都会", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-04", "home": "哥伦比亚", "away": "加纳", "homeFlag": "🇨🇴", "awayFlag": "🇬🇭", "score": "1-0", "winner": "哥伦比亚", "stage": "1/16", "venue": "堪萨斯城", "predCorrect": true, "predConfidence": "high"},
+    {"date": "07-04", "home": "澳大利亚", "away": "埃及", "homeFlag": "🇦🇺", "awayFlag": "🇪🇬", "score": "1-1", "winner": "埃及", "winnerNote": "点球 2-4", "stage": "1/16", "venue": "丹佛", "predCorrect": false, "predConfidence": "high"}
+  ],
+  "roundOf16": [
+    {"date": "07-04", "time": "17:00", "home": "加拿大", "away": "摩洛哥", "homeFlag": "🇨🇦", "awayFlag": "🇲🇦", "score": "0-3", "winner": "摩洛哥", "stage": "1/8", "venue": "休斯顿", "predCorrect": true, "predConfidence": "medium", "scorers": ["奥纳希 24'", "奥纳希 67'", "拉希米 90+3'"]},
+    {"date": "07-04", "time": "21:00", "home": "巴拉圭", "away": "法国", "homeFlag": "🇵🇾", "awayFlag": "🇫🇷", "score": "0-1", "winner": "法国", "stage": "1/8", "venue": "费城", "predCorrect": true, "predConfidence": "high", "scorers": ["姆巴佩 70'(点)"], "keyEvent": "姆巴佩世界杯第 19 球"},
+    {"date": "07-05", "time": "20:00", "home": "巴西", "away": "挪威", "homeFlag": "🇧🇷", "awayFlag": "🇳🇴", "score": "1-2", "winner": "挪威", "stage": "1/8", "venue": "东卢瑟福", "predCorrect": false, "predConfidence": "high", "scorers": ["拉菲尼亚 30'", "厄德高 55'", "哈兰德 78'"], "keyEvent": "大冷门!挪威淘汰五星巴西"},
+    {"date": "07-05", "time": "23:00", "home": "墨西哥", "away": "英格兰", "homeFlag": "🇲🇽", "awayFlag": "🏴󠁢󠁥󠁮󠁧󠁿", "score": "2-3", "winner": "英格兰", "stage": "1/8", "venue": "墨西哥城", "predCorrect": true, "predConfidence": "high", "scorers": ["洛萨诺 22'", "阿尔瓦雷斯 60'", "凯恩 47' 86'", "贝林厄姆 73'"], "keyEvent": "凯恩双响+第 86 分钟绝杀"},
+    {"date": "07-07", "time": "03:00", "home": "葡萄牙", "away": "西班牙", "homeFlag": "🇵🇹", "awayFlag": "🇪🇸", "score": "0-1", "winner": "西班牙", "stage": "1/8", "venue": "亚特兰大", "predCorrect": true, "predConfidence": "medium", "scorers": ["亚马尔 65'"], "keyEvent": "C 罗告别世界杯"},
+    {"date": "07-07", "time": "08:00", "home": "美国", "away": "比利时", "homeFlag": "🇺🇸", "awayFlag": "🇧🇪", "score": "1-4", "winner": "比利时", "stage": "1/8", "venue": "迈阿密", "predCorrect": true, "predConfidence": "medium", "scorers": ["普利西奇 35'", "卢卡库 41' 68'", "德布劳内 73'", "特罗萨德 89'"]},
+    {"date": "07-08", "time": "00:00", "home": "阿根廷", "away": "埃及", "homeFlag": "🇦🇷", "awayFlag": "🇪🇬", "score": "3-2", "winner": "阿根廷", "stage": "1/8", "venue": "纽约大都会", "predCorrect": true, "predConfidence": "high", "scorers": ["梅西 31' 67'(点)", "阿尔瓦雷斯 75'", "萨拉赫 51'", "特雷泽盖 88'"]},
+    {"date": "07-08", "time": "04:00", "home": "瑞士", "away": "哥伦比亚", "homeFlag": "🇨🇭", "awayFlag": "🇨🇴", "score": "0-0", "winner": "瑞士", "winnerNote": "点球 4-3", "stage": "1/8", "venue": "堪萨斯城", "predCorrect": false, "predConfidence": "medium", "keyEvent": "瑞士点球大战 4-3 淘汰哥伦比亚"}
+  ],
+  "quarterFinals": [
+    {
+      "date": "07-10", "time": "04:00", "home": "法国", "away": "摩洛哥", "homeFlag": "🇫🇷", "awayFlag": "🇲🇦",
+      "score": "2-0", "winner": "法国", "stage": "1/4", "venue": "波士顿",
+      "predCorrect": true, "predConfidence": "medium",
+      "prediction": "2-1", "predWinner": "法国", "predRate": {"home": 72, "away": 28},
+      "scorers": ["姆巴佩 24'(点)", "姆巴佩 58'"],
+      "keyEvent": "姆巴佩传射,法国完胜晋级 4 强"
+    },
+    {
+      "date": "07-11", "time": "03:00", "home": "西班牙", "away": "比利时", "homeFlag": "🇪🇸", "awayFlag": "🇧🇪",
+      "score": "2-1", "winner": "西班牙", "stage": "1/4", "venue": "洛杉矶",
+      "predCorrect": true, "predConfidence": "high",
+      "prediction": "2-0", "predWinner": "西班牙", "predRate": {"home": 68, "away": 32},
+      "scorers": ["法比安·鲁伊斯 30'", "德凯特拉雷 41'", "梅里诺 88'"],
+      "keyEvent": "梅里诺第 88 分钟补射制胜,西班牙 36 场不败纪录延续,时隔 16 年重返 4 强"
+    },
+    {
+      "date": "07-12", "time": "05:00", "home": "挪威", "away": "英格兰", "homeFlag": "🇳🇴", "awayFlag": "🏴󠁢󠁥󠁮󠁧󠁿",
+      "score": "1-2", "winner": "英格兰", "stage": "1/4", "venue": "迈阿密",
+      "predCorrect": true, "predConfidence": "high",
+      "prediction": "1-2", "predWinner": "英格兰", "predRate": {"home": 30, "away": 70},
+      "scorers": ["哈兰德 15'", "贝林厄姆 40'", "帕尔默 90+3'"],
+      "keyEvent": "哈兰德先拔头筹,贝林厄姆世界波扳平,帕尔默第 93 分钟绝杀!哈兰德本届 7 球"
+    },
+    {
+      "date": "07-12", "time": "09:00", "home": "阿根廷", "away": "瑞士", "homeFlag": "🇦🇷", "awayFlag": "🇨🇭",
+      "score": "3-1", "winner": "阿根廷", "stage": "1/4", "venue": "堪萨斯城",
+      "predCorrect": true, "predConfidence": "high",
+      "prediction": "3-1", "predWinner": "阿根廷", "predRate": {"home": 80, "away": 20},
+      "scorers": ["麦卡利斯特 10'", "恩多耶 67'", "阿尔瓦雷斯 91'", "劳塔罗·马丁内斯 105'"],
+      "keyEvent": "梅西助攻登顶世界杯历史助攻榜;阿根廷加时 3-1 晋级,连续 12 场不败"
+    }
+  ],
+  "semiFinals": [
+    {"date": "07-15", "time": "03:00", "home": "法国", "away": "西班牙", "homeFlag": "🇫🇷", "awayFlag": "🇪🇸",
+     "prediction": "2-1", "predWinner": "法国", "predRate": {"home": 55, "away": 45}, "predConfidence": "medium",
+     "stage": "半决赛", "venue": "达拉斯", "note": "法式快攻 vs 西班牙传控的经典对决"},
+    {"date": "07-16", "time": "07:00", "home": "英格兰", "away": "阿根廷", "homeFlag": "🏴󠁢󠁥󠁮󠁧󠁿", "awayFlag": "🇦🇷",
+     "prediction": "0-1", "predWinner": "阿根廷", "predRate": {"home": 38, "away": 62}, "predConfidence": "high",
+     "stage": "半决赛", "venue": "亚特兰大", "note": "宿命对决!英格兰 vs 阿根廷"}
+
+  ],
+  "final": [
+    {"date": "07-19", "time": "03:00", "home": "法国", "away": "阿根廷", "homeFlag": "🇫🇷", "awayFlag": "🇦🇷",
+     "prediction": "1-2", "predWinner": "阿根廷", "predRate": {"home": 42, "away": 58}, "predConfidence": "medium",
+     "stage": "决赛", "venue": "纽约大都会 MetLife", "note": "🏆 预测:阿根廷卫冕(2022 决赛重演)"}
+  ],
+  "championPrediction": {
+    "team": "阿根廷",
+    "flag": "🇦🇷",
+    "reason": "阿根廷已晋级 4 强,1/4 决赛加时 3-1 击败瑞士(麦卡利斯特 10'、阿尔瓦雷斯 91'、劳塔罗 105'),梅西助攻登顶世界杯历史助攻榜。阿根廷达成世界杯 7 连胜且连续 12 场不败。半决赛对阵英格兰(7/16),预测点球大战胜出;决赛再遇法国,2022 卡塔尔决赛重演,阿根廷心理优势明显。预测阿根廷 2-1 法国加时卫冕,2026 成为继 1962 巴西之后首支非东道主卫冕球队。"
+  }
+}

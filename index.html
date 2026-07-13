@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="LD看世界杯 - AI 数据驱动的世界杯预测平台,展示每日战况、AI 预测、历史准确率">
+  <meta name="keywords" content="世界杯,2026,预测,AI,数据分析,足球">
+  <meta name="theme-color" content="#1B5E20">
+  <title>LD看世界杯 · AI 数据驱动预测平台</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- ECharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <div class="logo-icon">⚽</div>
+        <div>
+          <div>LD 看世界杯</div>
+          <div class="logo-subtitle">AI 数据驱动预测平台</div>
+        </div>
+      </div>
+      <div class="nav-meta">
+        <div class="nav-meta-item">
+          <div class="nav-meta-label">STATUS</div>
+          <div class="nav-meta-value">
+            <span class="live-dot"></span>实时更新
+          </div>
+        </div>
+        <div class="nav-meta-item">
+          <div class="nav-meta-label">STAGE</div>
+          <div class="nav-meta-value">1/8 决赛</div>
+        </div>
+        <div class="nav-meta-item">
+          <div class="nav-meta-label">决赛日</div>
+          <div class="nav-meta-value">7/19</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" id="app">
+
+    <!-- 概览统计 -->
+    <div class="overview">
+      <div class="stat-card">
+        <div class="stat-label">已预测场次</div>
+        <div class="stat-value" id="stat-total">-</div>
+        <div class="stat-sub">1/16 + 1/8 已完赛</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-label">胜方正确</div>
+        <div class="stat-value" id="stat-correct">-</div>
+        <div class="stat-sub">含加时/点球</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-label">总准确率</div>
+        <div class="stat-value" id="stat-rate">-</div>
+        <div class="stat-sub">7 维加权模型</div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-label">决赛场地</div>
+        <div class="stat-value" id="stat-stadium">-</div>
+        <div class="stat-sub" id="stat-final-date">-</div>
+      </div>
+    </div>
+
+    <!-- 冠军预测 -->
+    <div class="section" id="champion-section"></div>
+
+    <!-- 准确率仪表盘 -->
+    <div class="section">
+      <div class="section-title">🎯 模型预测准确率</div>
+      <div class="section-subtitle">实时统计基于多维度加权模型的胜方预测准确率</div>
+      <div id="accuracy-section"></div>
+    </div>
+
+    <!-- 比赛战况 Tabs -->
+    <div class="section">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="section-title" style="margin-bottom:4px;">⚔️ 比赛战况</div>
+          <div class="section-subtitle" id="update-time">数据加载中...</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <span id="refresh-status" style="font-size:12px;color:var(--text-light);font-family:monospace;">4:00:00 后自动刷新</span>
+          <button id="btn-refresh" style="
+            background: linear-gradient(135deg, #4CAF50, #1B5E20);
+            color: white; border: none; padding: 10px 18px;
+            border-radius: 8px; font-size: 14px; font-weight: 600;
+            cursor: pointer; box-shadow: 0 2px 8px rgba(27,94,32,0.2);
+            transition: transform 0.15s;
+          " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🔄 立即刷新</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-target="r32-content">1/16 决赛(16场)</div>
+        <div class="tab" data-target="r16-content">1/8 决赛(8场)</div>
+        <div class="tab" data-target="qf-content">1/4 决赛(预测)</div>
+        <div class="tab" data-target="sf-content">半决赛(预测)</div>
+        <div class="tab" data-target="final-content">决赛(预测)</div>
+      </div>
+
+      <div id="r32-content" class="tab-content active"></div>
+      <div id="r16-content" class="tab-content"></div>
+      <div id="qf-content" class="tab-content"></div>
+      <div id="sf-content" class="tab-content"></div>
+      <div id="final-content" class="tab-content"></div>
+    </div>
+
+    <!-- 数据可视化 -->
+    <div class="section">
+      <div class="section-title">📊 数据可视化</div>
+      <div class="section-subtitle">完全数据驱动 · 比赛更新后图表自动同步 · 5 大维度全维度统计</div>
+
+      <div class="chart-grid">
+        <!-- 图 1:准确率趋势折线图(跨阶段累计) -->
+        <div class="chart-container">
+          <div class="chart-title">📈 准确率趋势(累计 1/16→决赛)</div>
+          <div id="chart-accuracy-trend" class="chart-canvas"></div>
+        </div>
+
+        <!-- 图 2:1/4 决赛对阵预测(柱状图) -->
+        <div class="chart-container">
+          <div class="chart-title">⚔️ 1/4 决赛预测胜率 vs 实际结果</div>
+          <div id="chart-qf-prediction" class="chart-canvas"></div>
+        </div>
+
+        <!-- 图 3:模型置信度分布 -->
+        <div class="chart-container">
+          <div class="chart-title">🎯 模型置信度 vs 准确率分布</div>
+          <div id="chart-confidence" class="chart-canvas"></div>
+        </div>
+
+        <!-- 图 4:各队进球/失球对比 -->
+        <div class="chart-container">
+          <div class="chart-title">⚽ 各队进球/失球对比</div>
+          <div id="chart-goals" class="chart-canvas"></div>
+        </div>
+
+        <!-- 图 5:剩余球队胜率分布(含队名+注释) -->
+        <div class="chart-container">
+          <div class="chart-title">🏆 剩余球队胜率分布</div>
+          <div style="font-size:10px;color:#888;margin:-10px 0 10px 0;">
+            胜率 = 获胜场次 ÷ 总场次 × 100% (例:4战全胜=100%,平局不计入胜场)
+          </div>
+          <div id="chart-winrate" class="chart-canvas"></div>
+        </div>
+
+        <!-- 图 6:每日比赛数量趋势 -->
+        <div class="chart-container">
+          <div class="chart-title">📅 每日比赛数量趋势</div>
+          <div id="chart-daily" class="chart-canvas"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模型说明 -->
+    <div class="section">
+      <div class="section-title">🧠 预测模型说明</div>
+      <div class="section-subtitle">7 维加权评分 + 多源数据交叉验证</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:16px;">
+        <div style="background:#F1F8E9;padding:16px;border-radius:8px;border-left:3px solid #1B5E20;">
+          <div style="font-weight:700;color:#1B5E20;margin-bottom:4px;">FIFA 排名 10%</div>
+          <div style="font-size:13px;color:#555;">基于国际足联官方排名加权</div>
+        </div>
+        <div style="background:#F1F8E9;padding:16px;border-radius:8px;border-left:3px solid #4CAF50;">
+          <div style="font-weight:700;color:#1B5E20;margin-bottom:4px;">小组赛表现 20%</div>
+          <div style="font-size:13px;color:#555;">进球/失球/控球率综合评估</div>
+        </div>
+        <div style="background:#F1F8E9;padding:16px;border-radius:8px;border-left:3px solid #FFA726;">
+          <div style="font-weight:700;color:#1B5E20;margin-bottom:4px;">阵容伤病 25%</div>
+          <div style="font-size:13px;color:#555;">关键球员伤愈时间窗动态监测</div>
+        </div>
+        <div style="background:#F1F8E9;padding:16px;border-radius:8px;border-left:3px solid #1E88E5;">
+          <div style="font-weight:700;color:#1B5E20;margin-bottom:4px;">近期状态 20%</div>
+          <div style="font-size:13px;color:#555;">近 5 场表现 + xG 转化率</div>
+        </div>
+        <div style="background:#F1F8E9;padding:16px;border-radius:8px;border-left:3px solid #9C27B0;">
+          <div style="font-weight:700;color:#1B5E20;margin-bottom:4px;">历史交锋 5%</div>
+          <div style="font-size:13px;color:#555;">两队过往对决统计</div>
+        </div>
+        <div style="background:#F1F8E9;padding:16px;border-radius:8px;border-left:3px solid #E53935;">
+          <div style="font-weight:700;color:#1B5E20;margin-bottom:4px;">战术适配 10%</div>
+          <div style="font-size:13px;color:#555;">Opta/StatsBomb 数据分析</div>
+        </div>
+        <div style="background:#F1F8E9;padding:16px;border-radius:8px;border-left:3px solid #FF6F00;">
+          <div style="font-weight:700;color:#1B5E20;margin-bottom:4px;">体能/赛程密度 10%</div>
+          <div style="font-size:13px;color:#555;">近 30 天比赛场次与时差影响</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 底部 -->
+  <footer class="footer">
+    <div>
+      <strong>LD 看世界杯</strong> · 2026 美加墨世界杯 AI 预测平台
+    </div>
+    <div style="margin-top:8px;font-size:12px;opacity:0.7;">
+      数据源:FIFA 官网 · 央视网 · Bleacher Report · AS USA · 腾讯体育 · 直播吧
+    </div>
+    <div style="margin-top:8px;font-size:12px;opacity:0.7;">
+      © 2026 LD. Powered by WorkBuddy · 部署于腾讯云 101.34.62.149:8888
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
