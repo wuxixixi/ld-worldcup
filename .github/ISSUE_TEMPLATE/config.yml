@@ -1,0 +1,32 @@
+name: ❓ 问题 / 讨论
+description: 一般性问题或开放讨论
+title: "[Question]: "
+labels: ["question"]
+
+body:
+  - type: markdown
+    attributes:
+      content: |
+        ## ❓ 问题 / 讨论
+        这是一个开放的 Issue 模板,适用于任何类型的提问或讨论。
+
+  - type: textarea
+    id: question
+    attributes:
+      label: ❓ 你的问题
+      description: 请清晰描述你的疑问
+      placeholder: "如何将这个项目部署到我自己的服务器?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 🔍 已尝试的解决方法
+      description: 你尝试过哪些方法?读了哪些文档?
+      placeholder: |
+        - 阅读了 README 的"快速上手"
+        - 尝试了 `python deploy/fetch.py --help`
+        - 但不清楚如何配置 nginx
+    validations:
+      required: false

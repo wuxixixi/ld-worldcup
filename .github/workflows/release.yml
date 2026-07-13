@@ -1,0 +1,137 @@
+name: 📦 Release - 自动打包发布
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'    # 匹配 v1.4.0 / v2.0.1 等
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (例: 1.5.0)'
+        required: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  # ============ 阶段一: 打包 ============
+  package:
+    name: 📦 打包静态产物
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📝 提取版本号
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "📦 版本号: ${VERSION}"
+
+      - name: 📊 生成构建信息
+        run: |
+          cat > build-info.json <<EOF
+          {
+            "version": "${{ steps.version.outputs.VERSION }}",
+            "commit": "${{ github.sha }}",
+            "buildTime": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "author": "${{ github.actor }}"
+          }
+          EOF
+          cat build-info.json
+
+      - name: 📦 打包 ZIP
+        run: |
+          mkdir -p release/
+          zip -r release/ld-worldcup-${{ steps.version.outputs.VERSION }}.zip \
+            index.html css/ js/ data/ docs/ \
+            -x "*.zip" "*.pyc" "__pycache__/*" "node_modules/*" ".git/*"
+          ls -la release/
+
+      - name: 📤 上传 Release 资产
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-asset
+          path: release/ld-worldcup-*.zip
+
+  # ============ 阶段二: 创建 GitHub Release ============
+  github-release:
+    name: 🎉 创建 GitHub Release
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 下载资产
+        uses: actions/download-artifact@v4
+        with:
+          name: release-asset
+
+      - name: 🎉 创建 Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.package.outputs.version }}
+          name: "🏆 LD看世界杯 v${{ needs.package.outputs.version }}"
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ## 🏆 LD看世界杯 v${{ needs.package.outputs.VERSION }}
+
+            ### 📊 本版本亮点
+            - ✅ 数据自动拉取(每 30 分钟)
+            - ✅ 6 张 ECharts 可视化
+            - ✅ 模型准确率 92.86% (截至 1/4 决赛)
+
+            ### 📦 下载
+            - **ld-worldcup-${{ needs.package.outputs.VERSION }}.zip** — 完整静态站点
+
+            ### 🚀 快速部署
+            ```bash
+            unzip ld-worldcup-${{ needs.package.outputs.VERSION }}.zip
+            cd ld-worldcup-${{ needs.package.outputs.VERSION }}
+            python -m http.server 8080
+            ```
+
+            详见 [README.md](https://github.com/wuxixixi/ld-worldcup#-快速上手)
+          files: |
+            release/ld-worldcup-*.zip
+
+  # ============ 阶段三: 发布到 GitHub Pages ============
+  github-pages:
+    name: 🌐 发布到 GitHub Pages
+    needs: package
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📦 上传 Pages 产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: 🚀 部署到 Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: ✅ 部署完成
+        run: |
+          echo "🌐 GitHub Pages 部署完成: ${{ steps.deployment.outputs.page_url }}"

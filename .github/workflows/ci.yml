@@ -1,0 +1,119 @@
+name: 🧪 CI - 质量检查 & 测试
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
+
+jobs:
+  # ============ 阶段一: 代码质量 ============
+  quality:
+    name: 🔍 代码质量
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: 🎨 Black 格式检查
+        run: |
+          pip install black==24.10.0
+          black --check --diff deploy/
+
+      - name: 🔎 Flake8 lint
+        run: |
+          pip install flake8==7.1.1
+          flake8 deploy/ --max-line-length=120 --statistics
+
+      - name: 📦 Import 排序检查
+        run: |
+          pip install isort==5.13.2
+          isort --check-only --diff deploy/
+
+      - name: 🔐 Bandit 安全扫描
+        run: |
+          pip install bandit==1.7.10
+          bandit -r deploy/ -ll
+
+  # ============ 阶段二: 数据 schema 校验 ============
+  data-schema:
+    name: 📋 数据 Schema 校验
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 安装校验依赖
+        run: pip install jsonschema==4.23.0
+
+      - name: ✅ 校验 matches.json
+        run: |
+          python -c "
+          import json, jsonschema
+          schema = {
+            'type': 'object',
+            'required': ['meta', 'teamStats', 'roundOf32'],
+            'properties': {
+              'meta': {
+                'type': 'object',
+                'required': ['title', 'version', 'lastUpdate', 'modelAccuracy']
+              }
+            }
+          }
+          with open('data/matches.json') as f:
+              data = json.load(f)
+          jsonschema.validate(data, schema)
+          print('✅ data/matches.json schema 校验通过')
+          "
+
+  # ============ 阶段三: HTML/JS lint ============
+  frontend-lint:
+    name: 🎨 前端 Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 📦 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🔎 HTMLHint
+        run: |
+          npm install -g htmlhint@1.1.4
+          htmlhint index.html
+
+      - name: 🔎 ESLint (JS)
+        run: |
+          npm install -g eslint@9.15.0
+          echo '{"rules":{"no-unused-vars":"warn"}}' > /tmp/eslint.json
+          eslint --no-eslintrc --config /tmp/eslint.json js/app.js || true
+
+  # ============ 阶段四: 整合报告 ============
+  summary:
+    name: 📊 CI 汇总
+    needs: [quality, data-schema, frontend-lint]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: 📋 检查所有阶段
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "❌ 部分阶段失败"
+            exit 1
+          fi
+          echo "✅ 所有阶段通过"

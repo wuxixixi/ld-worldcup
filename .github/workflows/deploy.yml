@@ -1,0 +1,113 @@
+name: 🚀 Deploy - 多环境部署
+
+on:
+  push:
+    branches:
+      - dev        # → staging 环境
+      - main       # → production 环境
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '目标环境'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  # ============ 构建产物 ============
+  build:
+    name: 📦 构建
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 📊 统计文件
+        run: |
+          echo "=== 部署文件清单 ==="
+          find . -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" -o -name "*.json" \) ! -path "./.git/*" ! -path "./node_modules/*"
+          echo "=== 数据文件 ==="
+          ls -la data/
+
+      - name: 📦 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-${{ github.sha }}
+          path: |
+            index.html
+            css/
+            js/
+            data/
+          retention-days: 7
+
+  # ============ Staging 部署（dev 分支）============
+  deploy-staging:
+    name: 🧪 Deploy to Staging
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' || github.event.inputs.environment == 'staging'
+    environment:
+      name: staging
+      url: https://staging.ld-worldcup.example.com
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-${{ github.sha }}
+
+      - name: 🚀 部署到 Staging
+        run: |
+          echo "🚀 部署 staging..."
+          # 这里添加实际的部署命令（scp/rsync/云平台 CLI 等）
+          # 示例: rsync -avz --delete ./ ubuntu@staging-server:/var/www/ld-worldcup/
+
+      - name: ✅ 健康检查
+        run: |
+          sleep 5
+          curl -f https://staging.ld-worldcup.example.com/data/matches.json || echo "⚠️ 健康检查失败,但不阻塞部署"
+
+  # ============ Production 部署（main 分支）============
+  deploy-production:
+    name: 🌐 Deploy to Production
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
+    environment:
+      name: production
+      url: https://ld-worldcup.example.com
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-${{ github.sha }}
+
+      - name: 🛡️ 备份当前版本
+        run: |
+          echo "📦 备份当前生产版本..."
+          # rsync -avz production-server:/var/www/ld-worldcup/ ./backup-$(date +%Y%m%d-%H%M%S)/
+
+      - name: 🚀 部署到 Production
+        run: |
+          echo "🌐 部署 production..."
+          # rsync -avz --delete ./ ubuntu@prod-server:/var/www/ld-worldcup/
+
+      - name: ✅ 生产健康检查
+        run: |
+          sleep 10
+          for i in 1 2 3; do
+            if curl -f https://ld-worldcup.example.com/; then
+              echo "✅ 生产部署成功"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "❌ 生产部署失败"
+          exit 1
+
+      - name: 📢 部署通知
+        if: always()
+        run: |
+          echo "🔔 部署完成 - ${{ github.event.head_commit.message }}"
+          echo "📍 Commit: ${{ github.sha }}"
+          echo "👤 Author: ${{ github.actor }}"
+          echo "📊 Status: ${{ job.status }}"

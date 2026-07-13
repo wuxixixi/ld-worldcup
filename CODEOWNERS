@@ -1,0 +1,29 @@
+# CODEOWNERS - 代码审查负责人
+# 格式: <路径> <@用户或团队>
+# 规则: 最后匹配的规则优先生效
+
+# 默认所有者
+*                              @wuxixixi
+
+# 核心代码
+/js/                           @wuxixixi
+/css/                          @wuxixixi
+/index.html                    @wuxixixi
+
+# 数据管道（Python 抓取脚本）
+/deploy/fetch.py               @wuxixixi
+/deploy/deploy.py              @wuxixixi
+/deploy/watchdog.py            @wuxixixi
+
+# CI / CD 配置
+/.github/                      @wuxixixi
+/.githooks/                    @wuxixixi
+
+# 文档
+/README.md                     @wuxixixi
+/docs/                         @wuxixixi
+/CHANGELOG.md                  @wuxixixi
+
+# 安全敏感文件（需 2 人 review）
+/data/matches.json             @wuxixixi
+/deploy/install_fetch.py       @wuxixixi

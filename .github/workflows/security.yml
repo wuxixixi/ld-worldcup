@@ -1,0 +1,117 @@
+name: 🔒 Security Scan
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    - cron: '0 3 * * 1'   # 每周一 03:00 UTC 扫描
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  # ============ Python 依赖安全扫描 ============
+  python-audit:
+    name: 🐍 Python Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 📦 安装 pip-audit
+        run: pip install pip-audit==2.7.3
+
+      - name: 🔍 扫描依赖漏洞
+        run: |
+          echo "⚠️ 当前无 requirements.txt,跳过依赖扫描"
+          # 未来引入 requirements.txt 时取消注释:
+          # pip-audit --strict --desc || true
+
+  # ============ CodeQL 静态分析 ============
+  codeql:
+    name: 🔍 CodeQL Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: ['python', 'javascript']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🔧 初始化 CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: 🔍 执行分析
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # ============ Secret 扫描 ============
+  secret-scan:
+    name: 🔑 Secret 扫描
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 检测泄露的密钥
+        run: |
+          echo "⚠️ 手动检查以下文件是否包含密钥:"
+          echo "- deploy/*.py"
+          echo "- data/*.json"
+          echo "- .github/workflows/*.yml"
+          # 检查常见密钥模式
+          if grep -rE "(ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9_]{82})" --include="*.py" --include="*.js" --include="*.json" --include="*.yml" .; then
+            echo "❌ 检测到疑似 GitHub Token 泄露!"
+            exit 1
+          fi
+          if grep -rE "sk-[a-zA-Z0-9]{48}" --include="*.py" --include="*.js" .; then
+            echo "❌ 检测到疑似 OpenAI Key 泄露!"
+            exit 1
+          fi
+          echo "✅ 未检测到密钥泄露"
+
+  # ============ HTML/JS 安全检查 ============
+  html-security:
+    name: 🌐 前端安全检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🔍 检查内联脚本
+        run: |
+          if grep -rn "javascript:" index.html 2>/dev/null; then
+            echo "❌ 检测到 javascript: 伪协议"
+            exit 1
+          fi
+          echo "✅ 无 javascript: 伪协议"
+
+      - name: 🔍 检查外部 CDN 白名单
+        run: |
+          echo "=== 引用的外部资源 ==="
+          grep -oE 'https?://[^"]+' index.html | sort -u
+          echo "=== 验证白名单 ==="
+          ALLOWED=("echarts.apache.org" "cdn.jsdelivr.net" "unpkg.com" "bracketmundial2026.com")
+          for url in $(grep -oE 'https?://[^"/]+' index.html | sort -u); do
+            host=$(echo "$url" | sed 's|https\?://||')
+            found=false
+            for allow in "${ALLOWED[@]}"; do
+              if [[ "$host" == *"$allow"* ]]; then
+                found=true
+                break
+              fi
+            done
+            if [ "$found" = false ]; then
+              echo "⚠️ 外部资源不在白名单: $host"
+            fi
+          done

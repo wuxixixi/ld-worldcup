@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Local env
+.env
+.env.local
+.env.*.local
+.venv/
+venv/
+env/
+
+# Temporary
+*.tmp
+*.bak
+*.swp
+.cache/
+
+# Build artifacts
+dist/
+build/
+release/
+*.zip
+*.tar.gz
+
+# Node (if introduced later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local data overrides (only for dev)
+data/*.local.json
+
+# CI/CD secrets (never commit)
+.githooks/secrets/
