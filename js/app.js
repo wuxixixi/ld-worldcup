@@ -223,6 +223,25 @@
         ${appData.final.map(m => renderMatchCard(m, {upcoming: true})).join('')}
       </div>
     `;
+
+    // 根据实际数据更新 tab 标签状态
+    function updateTabStatus(tabId, matches) {
+      const el = document.getElementById(tabId);
+      if (!el) return;
+      const baseName = el.textContent.replace(/\s*\(.*?\)\s*/g, '').trim();
+      const allDone = matches.length > 0 && matches.every(m => !!m.winner && !!m.score);
+      const noneDone = matches.every(m => !m.winner && !m.score);
+      if (allDone) {
+        el.textContent = baseName + ' ✓ 已完赛';
+      } else if (!noneDone) {
+        el.textContent = baseName;
+      } else {
+        el.textContent = baseName;
+      }
+    }
+    updateTabStatus('tab-qf', appData.quarterFinals || []);
+    updateTabStatus('tab-sf', appData.semiFinals || []);
+    updateTabStatus('tab-final', appData.final || []);
   }
 
   function formatDate(d) {
