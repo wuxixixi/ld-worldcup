@@ -234,6 +234,11 @@ def merge_to_matches(fetched):
             log("✅ 自动更新成功写入 matches.json")
             return True
 
+    # 即使无比赛数据变动,也刷新 lastUpdate 时间戳,让前端知道系统是活的
+    data["meta"]["lastUpdate"] = datetime.now(TZ).strftime("%Y-%m-%d %H:%M GMT+8")
+    if save_matches(data):
+        log("🔄 数据无变更,已刷新 lastUpdate 时间戳")
+        return True
     return False
 
 
