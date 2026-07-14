@@ -203,14 +203,14 @@
       </div>
     `).join('');
 
-    // 1/4 决赛预测
+    // 1/4 决赛 — 通过 score/winner 自动判断已完赛
     document.getElementById('qf-content').innerHTML = `
       <div class="matches-grid">
-        ${appData.quarterFinals.map(m => renderMatchCard(m, {upcoming: true})).join('')}
+        ${appData.quarterFinals.map(m => renderMatchCard(m)).join('')}
       </div>
     `;
 
-    // 半决赛预测
+    // 半决赛预测 — 仍用 upcoming，实际半决赛 2 场还未全打完
     document.getElementById('sf-content').innerHTML = `
       <div class="matches-grid">
         ${appData.semiFinals.map(m => renderMatchCard(m, {upcoming: true})).join('')}
@@ -706,7 +706,7 @@
     // 收集尚未结束的比赛
     const upcoming = [
       ...(appData.semiFinals || []),
-      ...(appData.finals || [])
+      ...(appData.final || [])
     ].filter(m => !m.winner);
 
     if (upcoming.length === 0) {
