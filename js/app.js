@@ -71,6 +71,7 @@
     Object.keys(acc).forEach(key => {
       if (key === 'overall') return;
       const data = acc[key];
+      if (!data || typeof data.correct === 'undefined') return; // 跳过非阶段字段(如 modelNotes、accuracyTrend)
       const label = stageLabels[key] || key;
       stageRows += `
         <div class="accuracy-row">
