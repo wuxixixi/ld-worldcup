@@ -31,21 +31,28 @@
       (acc.roundOf32.correct + r16.correct);
     document.getElementById('stat-rate').textContent =
       acc.overall.rate;
+
+    // 从 matches.json final 数据读取决赛场地和日期, 而非硬编码
+    const finalMatch = (appData.final && appData.final.length > 0) ? appData.final[0] : null;
     document.getElementById('stat-stadium').textContent =
-      '纽约大都会';
+      finalMatch && finalMatch.venue ? finalMatch.venue : '纽约大都会';
     document.getElementById('stat-final-date').textContent =
-      '7月19日 03:00';
+      finalMatch ? (finalMatch.date || '') + (finalMatch.time ? ' ' + finalMatch.time : '') : '7月19日 03:00';
   }
 
   // ========== 渲染冠军预测 ==========
   function renderChampion() {
     const champ = appData.championPrediction;
+    if (!champ || !champ.team) {
+      document.getElementById('champion-section').innerHTML = '';
+      return;
+    }
     const html = `
       <div class="champion-card">
-        <div class="champion-flag">${champ.flag}</div>
+        <div class="champion-flag">${champ.flag || ''}</div>
         <div class="champion-team">${champ.team}</div>
         <div style="font-size:18px;opacity:0.9;margin-top:4px;">预测冠军 · Predicted Champion</div>
-        <div class="champion-reason">${champ.reason}</div>
+        <div class="champion-reason">${champ.reason || ''}</div>
       </div>
     `;
     document.getElementById('champion-section').innerHTML = html;
