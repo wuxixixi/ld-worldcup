@@ -714,6 +714,12 @@
     // 更新时间戳
     document.getElementById('update-time').textContent =
       '数据更新于 ' + appData.meta.lastUpdate;
+
+    // 更新导航栏 STAGE（从 meta.stage 读取）
+    const stageEl = document.querySelector('.nav-meta-item:nth-child(2) .nav-meta-value');
+    if (stageEl && appData.meta.stage) {
+      stageEl.textContent = appData.meta.stage;
+    }
   }
 
   // ========== 关键比赛预测(球迷真正关心的,从 matches.json 直接读取 fetch.py 写入的预测数据) ==========
