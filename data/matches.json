@@ -816,23 +816,25 @@
       "predCorrect": true
     }
   ],
-  "final": {
-    "date": "07-19",
-    "time": "03:00",
-    "home": "西班牙",
-    "away": "阿根廷",
-    "homeFlag": "🇪🇸",
-    "awayFlag": "🇦🇷",
-    "prediction": "0-1",
-    "predWinner": "阿根廷",
-    "predRate": {
-      "home": 45,
-      "away": 55
-    },
-    "predConfidence": "medium",
-    "stage": "决赛",
-    "venue": "纽约大都会 MetLife",
-    "note": "2022 卡塔尔决赛重演;阿根廷心理优势;梅西最后一届(4球3助攻);预测阿根廷加时卫冕"
-  },
+  "final": [
+    {
+      "date": "07-19",
+      "time": "03:00",
+      "home": "西班牙",
+      "away": "阿根廷",
+      "homeFlag": "🇪🇸",
+      "awayFlag": "🇦🇷",
+      "prediction": "0-1",
+      "predWinner": "阿根廷",
+      "predRate": {
+        "home": 45,
+        "away": 55
+      },
+      "predConfidence": "medium",
+      "stage": "决赛",
+      "venue": "纽约大都会 MetLife",
+      "note": "2022 卡塔尔决赛重演;阿根廷心理优势;梅西最后一届(4球3助攻);预测阿根廷加时卫冕"
+    }
+  ],
   "championPrediction": "阿根廷"
 }
