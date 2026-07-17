@@ -26,23 +26,18 @@
         "avgConfidence": "78%"
       },
       "semiFinals_played": {
-        "correct": 0,
-        "total": 1,
-        "rate": "0%",
+        "correct": 1,
+        "total": 2,
+        "rate": "50%",
         "avgConfidence": "medium"
       },
       "overall": {
-        "correct": 28,
+        "correct": 27,
         "total": 30,
-        "rate": "93.33%",
+        "rate": "90%",
         "avgConfidence": "79%"
       },
-      "semiFinals": {
-        "correct": 2,
-        "total": 2,
-        "rate": "100%",
-        "avgConfidence": "78%"
-      }
+      "modelNotes": "高置信度(80%+)预测准确率 87.5%,中置信度 100%,低置信度 66.7%。1/4 决赛 4 场全中(100%);半决赛 1 胜 1 负(法国 vs 西班牙 AI 押法国 2-1 实际 0-2 翻车,英格兰 vs 阿根廷 AI 押阿根廷 0-1 实际 1-2 命中);总体准确率回落至 90%(27/30)。决赛 7/19 03:00 西班牙 vs 阿根廷,模型押阿根廷 55% 卫冕。"
     },
     "accuracyTrend": [
       {
@@ -56,28 +51,28 @@
         "stage": "1/8 决赛",
         "rate": 87.5,
         "matches": 8,
-        "cumulativeCorrect": 7,
-        "cumulativeTotal": 8
+        "cumulativeCorrect": 22,
+        "cumulativeTotal": 24
       },
       {
         "stage": "1/4 决赛",
         "rate": 100,
         "matches": 4,
-        "cumulativeCorrect": 4,
-        "cumulativeTotal": 4
+        "cumulativeCorrect": 26,
+        "cumulativeTotal": 28
       },
       {
         "stage": "半决赛",
-        "rate": 100,
+        "rate": 50,
         "matches": 2,
-        "cumulativeCorrect": 28,
+        "cumulativeCorrect": 27,
         "cumulativeTotal": 30
       },
       {
         "stage": "决赛",
         "rate": 0,
         "matches": 0,
-        "cumulativeCorrect": 28,
+        "cumulativeCorrect": 27,
         "cumulativeTotal": 30,
         "isPending": true
       }
